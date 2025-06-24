@@ -23,4 +23,13 @@ Route::view('products', 'products.index')
     ->middleware(['auth', 'verified'])
     ->name('products.index');
 
+// Livewire routes
+Route::get('/customers', App\Livewire\Customer\Index::class)
+    ->name('customers.index')
+    ->middleware(['auth']);
+
+Route::get('/customers/{customerId}', App\Livewire\Customer\Show::class)
+    ->name('customers.show')
+    ->middleware(['auth']);
+
 require __DIR__.'/auth.php';

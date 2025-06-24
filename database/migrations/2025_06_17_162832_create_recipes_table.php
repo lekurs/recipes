@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->id();
             $table->string('type');
             $table->string('title');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->foreignIdFor(Project::class)->constrained('projects');
             $table->timestamps();
         });

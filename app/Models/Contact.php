@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
-use App\Enum\Role;
+use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Contact extends Model
 {
@@ -15,14 +17,15 @@ class Contact extends Model
         'email',
         'phone',
         'job_area',
+        'customer_id',
     ];
 
-    public function customers()
+    public function customer(): BelongsTo
     {
-        return $this->belongsToMany(Customer::class, 'customer_contact', 'contact_id', 'customer_id');
+        return $this->belongsTo(Customer::class);
     }
 
-    public function projects()
+    public function projects(): BelongsToMany
     {
         return $this->belongsToMany(Project::class, 'contact_project', 'contact_id', 'project_id');
     }

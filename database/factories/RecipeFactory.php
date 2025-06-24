@@ -2,25 +2,148 @@
 
 namespace Database\Factories;
 
-use App\Models\Project;
 use App\Models\Recipe;
+use App\Models\Project;
+use App\Enums\RecipeType;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Carbon;
 
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Recipe>
+ */
 class RecipeFactory extends Factory
 {
+    /**
+     * The name of the factory's corresponding model.
+     */
     protected $model = Recipe::class;
 
-    public function definition()
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
     {
         return [
-            'type' => $this->faker->word(),
-            'title' => $this->faker->word(),
-            'description' => $this->faker->text(),
-            'created_at' => Carbon::now(),
-            'updated_at' => Carbon::now(),
-
-            'project_id' => Project::factory(),
+            'type' => fake()->randomElement(RecipeType::cases()),
+            'title' => fake()->sentence(4), // Titre court
+            'description' => fake()->optional(0.8)->paragraph(), // 80% ont une description
+            'project_id' => Project::factory(), // Crée un projet si besoin
         ];
+    }
+
+    /**
+     * Indicate that the recipe is for desktop.
+     */
+    public function desktop(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => RecipeType::DESKTOP,
+            'title' => fake()->randomElement([
+                'Problème d\'affichage sur grand écran',
+                'Bug dans le menu de navigation',
+                'Erreur lors du téléchargement de fichier',
+                'Interface non responsive sur desktop',
+                'Problème de performance sur Firefox',
+                'Bouton de validation qui ne fonctionne pas',
+                'Pagination défaillante',
+                'Formulaire qui ne s\'envoit pas'
+            ]),
+        ]);
+    }
+
+    /**
+     * Indicate that the recipe is for mobile.
+     */
+    public function mobile(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type' => RecipeType::MOBILE,
+            'title' => fake()->randomElement([
+                'Interface cassée sur iPhone',
+                'Menu burger ne s\'ouvre pas',
+                'Problème de scroll sur mobile',
+                'Boutons trop petits sur tablette',
+                'App qui crash au démarrage',
+                'Notifications push défaillantes',
+                'Géolocalisation ne fonctionne pas',
+                'Mise en page déformée sur Android'
+            ]),
+        ]);
+    }
+
+    /**
+     * Recipe for a specific project.
+     */
+    public function forProject(Project $project): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'project_id' => $project->id,
+        ]);
+    }
+
+    /**
+     * Bug recipe (critical issue).
+     */
+    public function bug(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'title' => '[BUG] ' . $attributes['title'],
+            'description' => 'Bug critique nécessitant une correction rapide. ' . ($attributes['description'] ?? ''),
+        ]);
+    }
+
+    /**
+     * Feature request recipe.
+     */
+    public function feature(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'title' => fake()->randomElement([
+                'Ajouter un système de filtres',
+                'Implémenter la recherche avancée',
+                'Créer un dashboard analytics',
+                'Ajouter l\'export PDF',
+                'Intégrer un chat en temps réel',
+                'Développer l\'API REST',
+                'Ajouter l\'authentification sociale',
+                'Créer un système de notifications'
+            ]),
+            'description' => 'Demande d\'évolution pour améliorer l\'expérience utilisateur. ' . ($attributes['description'] ?? ''),
+        ]);
+    }
+
+    /**
+     * UI/UX recipe.
+     */
+    public function uiux(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'title' => fake()->randomElement([
+                'Améliorer l\'ergonomie du formulaire',
+                'Revoir la hiérarchie visuelle',
+                'Optimiser le parcours utilisateur',
+                'Harmoniser la charte graphique',
+                'Améliorer la lisibilité des textes',
+                'Revoir les couleurs d\'état',
+                'Optimiser l\'espacement des éléments',
+                'Améliorer les micro-interactions'
+            ]),
+            'description' => 'Amélioration de l\'interface et de l\'expérience utilisateur. ' . ($attributes['description'] ?? ''),
+        ]);
+    }
+
+    /**
+     * Recipe with detailed description.
+     */
+    public function withDetailedDescription(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'description' => fake()->paragraphs(2, true) . "\n\nÉtapes pour reproduire :\n" .
+                "1. " . fake()->sentence() . "\n" .
+                "2. " . fake()->sentence() . "\n" .
+                "3. " . fake()->sentence() . "\n\n" .
+                "Résultat attendu : " . fake()->sentence(),
+        ]);
     }
 }

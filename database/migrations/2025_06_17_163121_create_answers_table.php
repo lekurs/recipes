@@ -12,9 +12,11 @@ return new class extends Migration {
         Schema::create('answers', function (Blueprint $table) {
             $table->id();
             $table->string('status');
-            $table->text('comment');
+            $table->text('comment')->nullable();
+            $table->text('question')->nullable();
+            $table->dateTime('responded_at')->nullable();
             $table->foreignIdFor(Recipe::class)->constrained('recipes');
-            $table->foreignIdFor(User::class)->constrained('users');
+            $table->foreignId('user_id')->nullable()->constrained();
             $table->timestamps();
         });
     }

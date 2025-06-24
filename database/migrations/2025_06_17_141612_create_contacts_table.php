@@ -14,6 +14,10 @@ return new class extends Migration {
             $table->string('phone')->nullable();
             $table->string('job_area');
             $table->timestamps();
+
+            $table->foreignId('customer_id')
+                ->constrained('customers')
+                ->onDelete('cascade');
         });
     }
 
