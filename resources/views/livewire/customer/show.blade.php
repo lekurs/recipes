@@ -134,84 +134,14 @@
 
         <!-- Panel Projets -->
         <flux:tab.panel name="projects">
-            <div class="space-y-6 mt-6">
-                <div class="flex items-center justify-between">
-                    <flux:heading size="lg">Projets ({{ $customer->projects->count() }})</flux:heading>
-                    <flux:button size="sm" color="green">
-                        + Nouveau projet
-                    </flux:button>
-                </div>
-
-                <!-- Projets en cours -->
-                <div>
-                    <flux:heading size="md" class="mb-4">
-                        Projets en cours ({{ $customer->ongoingProjects->count() }})
-                    </flux:heading>
-
-                    @if($customer->ongoingProjects->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($customer->ongoingProjects as $project)
-                                <flux:card class="p-4 border border-blue-200 bg-blue-50">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <flux:heading size="md">{{ $project->name }}</flux:heading>
-                                            <flux:subheading>
-                                                Démarré le {{ $project->created_at->format('d/m/Y') }}
-                                            </flux:subheading>
-                                            @if($project->description)
-                                                <p class="mt-2 text-sm text-gray-600">{{ Str::limit($project->description, 100) }}</p>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center space-x-2">
-                                            <flux:badge color="blue">En cours</flux:badge>
-                                            <flux:button size="sm" variant="outline">Voir</flux:button>
-                                        </div>
-                                    </div>
-                                </flux:card>
-                            @endforeach
-                        </div>
-                    @else
-                        <flux:card class="p-6 text-center">
-                            <flux:subheading>Aucun projet en cours</flux:subheading>
-                        </flux:card>
-                    @endif
-                </div>
-
-                <!-- Projets terminés -->
-                <div>
-                    <flux:heading size="md" class="mb-4">
-                        Projets terminés ({{ $customer->completedProjects->count() }})
-                    </flux:heading>
-
-                    @if($customer->completedProjects->count() > 0)
-                        <div class="space-y-3">
-                            @foreach($customer->completedProjects as $project)
-                                <flux:card class="p-4 border border-green-200 bg-green-50">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <flux:heading size="md">{{ $project->name }}</flux:heading>
-                                            <flux:subheading>
-                                                Terminé le {{ $project->updated_at->format('d/m/Y') }}
-                                            </flux:subheading>
-                                            @if($project->description)
-                                                <p class="mt-2 text-sm text-gray-600">{{ Str::limit($project->description, 100) }}</p>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center space-x-2">
-                                            <flux:badge color="green">Terminé</flux:badge>
-                                            <flux:button size="sm" variant="outline">Voir</flux:button>
-                                        </div>
-                                    </div>
-                                </flux:card>
-                            @endforeach
-                        </div>
-                    @else
-                        <flux:card class="p-6 text-center">
-                            <flux:subheading>Aucun projet terminé</flux:subheading>
-                        </flux:card>
-                    @endif
-                </div>
+            <div class="mt-6">
+                <livewire:project.index :customer="$customer" />
             </div>
         </flux:tab.panel>
+{{--        <flux:tab.panel name="projects">--}}
+{{--            <div class="mt-6">--}}
+{{--                <livewire:project.show :customer="$customer" />--}}
+{{--            </div>--}}
+{{--        </flux:tab.panel>--}}
     </flux:tab.group>
 </div>

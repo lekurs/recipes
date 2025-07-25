@@ -28,4 +28,14 @@ enum ProjectStatus: string
             self::CANCELLED => 'red',
         };
     }
+
+    public function sortOrder(): int
+    {
+        return match($this) {
+            self::ONGOING => 1,
+            self::PAUSED => 2,
+            self::COMPLETED => 3,
+            self::CANCELLED => 4,
+        };
+    }
 }

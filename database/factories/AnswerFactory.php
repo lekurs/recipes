@@ -28,7 +28,6 @@ class AnswerFactory extends Factory
     {
         return [
             'recipe_id' => Recipe::factory(),
-            'status' => fake()->randomElement(AnswerStatus::cases()),
             'comment' => fake()->optional(0.8)->paragraph(), // 80% ont un commentaire
             'question' => fake()->optional(0.3)->sentence(), // 30% ont une question
             'user_id' => User::factory(), // Crée un user si besoin
@@ -62,7 +61,6 @@ class AnswerFactory extends Factory
     public function pending(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => AnswerStatus::PENDING,
             'comment' => null,
             'question' => null,
             'user_id' => null,
@@ -76,7 +74,6 @@ class AnswerFactory extends Factory
     public function inProgress(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => AnswerStatus::IN_PROGRESS,
             'comment' => fake()->randomElement([
                 'Nous avons commencé à regarder le problème.',
                 'Investigation en cours.',
@@ -94,7 +91,6 @@ class AnswerFactory extends Factory
     public function updated(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => AnswerStatus::UPDATED,
             'comment' => fake()->randomElement([
                 'Correction déployée en pré-production. Merci de tester.',
                 'Bug corrigé. La mise à jour sera disponible demain.',
@@ -113,7 +109,7 @@ class AnswerFactory extends Factory
     public function question(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => AnswerStatus::QUESTION,
+//            'status' => AnswerStatus::QUESTION,
             'comment' => fake()->randomElement([
                 'Nous avons besoin de plus d\'informations.',
                 'Pouvez-vous nous donner plus de détails ?',
@@ -137,7 +133,7 @@ class AnswerFactory extends Factory
     public function completed(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => AnswerStatus::COMPLETED,
+//            'status' => AnswerStatus::COMPLETED,
             'comment' => fake()->randomElement([
                 'Parfait, le problème est résolu. Merci !',
                 'Correction validée, tout fonctionne bien.',
@@ -155,7 +151,7 @@ class AnswerFactory extends Factory
     public function rejected(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => AnswerStatus::REJECTED,
+//            'status' => AnswerStatus::REJECTED,
             'comment' => fake()->randomElement([
                 'Le problème persiste malheureusement.',
                 'La correction ne fonctionne pas comme attendu.',

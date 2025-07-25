@@ -11,8 +11,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'login-as' => \App\Http\Middleware\LoginAsMiddleware::class,
+            'hybrid.auth' => \App\Http\Middleware\HybridAuth::class,
+            'admin/switch-back', // Temporaire pour debug
+        ]);
     })
+//    ->withMiddleware(function (Middleware $middleware) {
+//        $middleware->validateCsrfTokens(except: [
+//            'admin/switch-back', // Temporaire pour debug
+//        ]);
+//    })
+//
+//    ->withMiddleware(function (Middleware $middleware) {
+//        $middleware->alias([
+//            'hybrid.auth' => \App\Http\Middleware\HybridAuth::class,
+//        ]);
+//    })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

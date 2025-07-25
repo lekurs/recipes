@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AnswerFile;
 use App\Models\Customer;
 use App\Models\Contact;
 use App\Models\Project;
@@ -23,25 +24,23 @@ class DemoSeeder extends Seeder
         $this->command->info('🌱 Création du jeu de données démo...');
 
         // === ÉTAPE 1 : CRÉER LES USERS ADMIN/DEV ===
-        $this->command->info('👥 Création des utilisateurs...');
+        $this->command->info('👥 Création des utilisateurs staff...');
 
-        $admin = User::factory()->create([
+        $admin = User::factory()->admin()->create([
             'name' => 'Admin Principal',
             'email' => 'admin@demo.com',
-            'role' => Role::ADMIN,
         ]);
 
-        $developer = User::factory()->create([
+        $developer = User::factory()->developer()->create([
             'name' => 'Dev Principal',
             'email' => 'dev@demo.com',
-            'role' => Role::DEVELOPER,
         ]);
 
-        // Quelques autres users
-        $additionalDevs = User::factory()->count(2)->create(['role' => Role::DEVELOPER]);
-        $additionalAdmins = User::factory()->count(1)->create(['role' => Role::ADMIN]);
+        // Quelques autres users staff
+        $additionalDevs = User::factory()->developer()->count(2)->create();
+        $additionalAdmins = User::factory()->admin()->count(1)->create();
 
-        $allUsers = collect([$admin, $developer])->merge($additionalDevs)->merge($additionalAdmins);
+        $allStaffUsers = collect([$admin, $developer])->merge($additionalDevs)->merge($additionalAdmins);
 
         // === ÉTAPE 2 : CRÉER LES CUSTOMERS ===
         $this->command->info('🏢 Création des entreprises clientes...');
@@ -52,45 +51,83 @@ class DemoSeeder extends Seeder
 
         $allCustomers = $techCustomers->merge($traditionalCustomers)->merge($regularCustomers);
 
-        // === ÉTAPE 3 : CRÉER LES CONTACTS ===
+        // === ÉTAPE 3 : CRÉER LES CONTACTS (MIX AVEC/SANS COMPTE) ===
         $this->command->info('📞 Création des contacts...');
 
         $allContacts = collect();
+        $clientUsers = collect(); // Pour tracker les users clients créés
 
-        $allCustomers->each(function ($customer) use (&$allContacts) {
+        $allCustomers->each(function ($customer) use (&$allContacts, &$clientUsers) {
             // Chaque customer a 2-4 contacts
             $contactCount = fake()->numberBetween(2, 4);
 
-            // Premier contact = manager
+            // Premier contact = manager avec compte (70% de chance)
             $manager = Contact::factory()
                 ->manager()
                 ->frenchPhone()
-                ->forCustomer($customer)
-                ->create();
+                ->forCustomer($customer);
+
+            if (fake()->boolean(70)) {
+                $manager = $manager->withAccount()->create();
+                $clientUsers->push($manager->user);
+            } else {
+                $manager = $manager->create();
+            }
 
             $allContacts->push($manager);
 
-            // Contacts additionnels
-            $additionalContacts = Contact::factory()
-                ->count($contactCount - 1)
-                ->forCustomer($customer)
-                ->create();
+            // Contacts additionnels (50% de chance d'avoir un compte)
+            for ($i = 0; $i < $contactCount - 1; $i++) {
+                $contact = Contact::factory()->forCustomer($customer);
 
-            $allContacts = $allContacts->merge($additionalContacts);
+                if (fake()->boolean(50)) {
+                    $contact = $contact->withAccount()->create();
+                    $clientUsers->push($contact->user);
+                } else {
+                    $contact = $contact->create();
+                }
 
-            // 40% de chance d'avoir un contact technique
+                $allContacts->push($contact);
+            }
+
+            // 40% de chance d'avoir un contact technique (30% avec compte)
             if (fake()->boolean(40)) {
                 $techContact = Contact::factory()
                     ->technical()
                     ->frenchPhone()
-                    ->forCustomer($customer)
-                    ->create();
+                    ->forCustomer($customer);
+
+                if (fake()->boolean(30)) {
+                    $techContact = $techContact->withAccount()->create();
+                    $clientUsers->push($techContact->user);
+                } else {
+                    $techContact = $techContact->create();
+                }
 
                 $allContacts->push($techContact);
             }
         });
 
-        // === ÉTAPE 4 : CRÉER LES PROJETS AVEC RELATIONS ===
+        // === ÉTAPE 4 : CRÉER QUELQUES USERS CLIENTS SUPPLÉMENTAIRES (pour tester) ===
+        $this->command->info('👤 Création d\'utilisateurs clients de test...');
+
+        $testClientUser = User::factory()->client()->create([
+            'name' => 'Client Test',
+            'email' => 'client@demo.com',
+        ]);
+        $clientUsers->push($testClientUser);
+
+        // Contact associé au client test
+        $testContact = Contact::factory()
+            ->manager()
+            ->withUser($testClientUser)
+            ->forCustomer($allCustomers->first())
+            ->create();
+        $allContacts->push($testContact);
+
+        $allUsers = $allStaffUsers->merge($clientUsers);
+
+        // === ÉTAPE 5 : CRÉER LES PROJETS AVEC RELATIONS ===
         $this->command->info('📂 Création des projets...');
 
         $projects = collect();
@@ -107,7 +144,7 @@ class DemoSeeder extends Seeder
             ->merge($webAppProjects)
             ->merge($urgentProjects);
 
-        // === ÉTAPE 5 : ASSIGNER CUSTOMERS ET CONTACTS AUX PROJETS ===
+        // === ÉTAPE 6 : ASSIGNER CUSTOMERS ET CONTACTS AUX PROJETS ===
         $this->command->info('🔗 Création des relations projets...');
 
         $projects->each(function ($project) use ($allCustomers, $allContacts) {
@@ -132,7 +169,7 @@ class DemoSeeder extends Seeder
             }
         });
 
-        // === ÉTAPE 6 : CRÉER LES RECIPES ===
+        // === ÉTAPE 7 : CRÉER LES RECIPES ===
         $this->command->info('📝 Création des recipes...');
 
         $allRecipes = collect();
@@ -158,7 +195,7 @@ class DemoSeeder extends Seeder
             $allRecipes = $allRecipes->merge($projectRecipes);
         });
 
-        // === ÉTAPE 7 : CRÉER LES FICHIERS ===
+        // === ÉTAPE 8 : CRÉER LES FICHIERS ===
         $this->command->info('📁 Création des fichiers...');
 
         $allRecipes->each(function ($recipe) {
@@ -177,7 +214,7 @@ class DemoSeeder extends Seeder
             }
         });
 
-        // === ÉTAPE 8 : CRÉER LES RÉPONSES ===
+        // === ÉTAPE 9 : CRÉER LES RÉPONSES ===
         $this->command->info('💬 Création des réponses...');
 
         $allRecipes->each(function ($recipe) use ($allUsers) {
@@ -201,13 +238,36 @@ class DemoSeeder extends Seeder
             }
         });
 
+        // === ÉTAPE 10 : CRÉER LES FICHIERS DE RÉPONSES ===
+        $this->command->info('📁 Création des fichiers de réponses...');
+
+        $allAnswers = Answer::all();
+        $allAnswers->each(function ($answer) {
+            $fileCount = fake()->numberBetween(1, 4); // 1-4 fichiers par recipe
+
+            for ($i = 0; $i < $fileCount; $i++) {
+                // Varier les types de fichiers
+                $fileType = fake()->randomElement(['screenshot', 'photo', 'mobile', 'desktop']);
+
+                match($fileType) {
+                    'screenshot' => AnswerFile::factory()->screenshot()->forAnswer($answer)->create(),
+                    'photo' => AnswerFile::factory()->photo()->forAnswer($answer)->create(),
+                    'mobile' => AnswerFile::factory()->mobileScreenshot()->forAnswer($answer)->create(),
+                    'desktop' => AnswerFile::factory()->desktopScreenshot()->forAnswer($answer)->create(),
+                };
+            }
+        });
+
         // === STATISTIQUES FINALES ===
         $this->command->info('');
         $this->command->info('✅ Jeu de données créé avec succès !');
         $this->command->info('📊 Statistiques :');
-        $this->command->info("   👥 Users: {$allUsers->count()}");
+        $this->command->info("   👥 Users Staff: {$allStaffUsers->count()}");
+        $this->command->info("   👤 Users Clients: {$clientUsers->count()}");
         $this->command->info("   🏢 Customers: {$allCustomers->count()}");
         $this->command->info("   📞 Contacts: {$allContacts->count()}");
+        $this->command->info("   📞 Contacts avec compte: " . $allContacts->where('user_id', '!=', null)->count());
+        $this->command->info("   📞 Contacts sans compte: " . $allContacts->where('user_id', null)->count());
         $this->command->info("   📂 Projects: {$projects->count()}");
         $this->command->info("   📝 Recipes: {$allRecipes->count()}");
         $this->command->info("   📁 Files: " . RecipeFile::count());
@@ -216,6 +276,10 @@ class DemoSeeder extends Seeder
         $this->command->info('🎯 Comptes de test :');
         $this->command->info('   Admin: admin@demo.com');
         $this->command->info('   Dev: dev@demo.com');
+        $this->command->info('   Client: client@demo.com');
         $this->command->info('   Password: password');
+        $this->command->info('');
+        $this->command->info('📝 Note : Certains contacts ont des comptes, d\'autres non.');
+        $this->command->info('     Ceux sans compte utiliseront les URLs signées !');
     }
 }

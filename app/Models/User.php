@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -48,6 +49,46 @@ class User extends Authenticatable
             'password' => 'hashed',
             'role' => Role::class,
         ];
+    }
+
+    public function contact(): HasOne
+    {
+        return $this->hasOne(Contact::class);
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === Role::ADMIN;
+    }
+
+    public function isDeveloper(): bool
+    {
+        return $this->role === Role::DEVELOPER;
+    }
+
+    public function isClient(): bool
+    {
+        return $this->role === Role::CLIENT;
+    }
+
+    public function isStaff(): bool
+    {
+        return $this->isAdmin() || $this->isDeveloper();
+    }
+
+    public function getRole()
+    {
+        return $this->role->label();
+    }
+
+    public function getIcons()
+    {
+        return $this->role->icon();
+    }
+
+    public function getRoleColors()
+    {
+        return $this->role->color();
     }
 
     /**

@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('type');
             $table->string('title');
             $table->text('description')->nullable();
+            $table->string('status')->default('ongoing'); // ongoing, completed, archived
             $table->foreignIdFor(Project::class)->constrained('projects');
             $table->timestamps();
         });

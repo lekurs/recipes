@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\RecipeStatus;
 use App\Models\Recipe;
 use App\Models\Project;
 use App\Enums\RecipeType;
@@ -25,6 +26,7 @@ class RecipeFactory extends Factory
     public function definition(): array
     {
         return [
+            'status' => fake()->randomElement(RecipeStatus::cases()),
             'type' => fake()->randomElement(RecipeType::cases()),
             'title' => fake()->sentence(4), // Titre court
             'description' => fake()->optional(0.8)->paragraph(), // 80% ont une description
@@ -79,6 +81,104 @@ class RecipeFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'project_id' => $project->id,
+        ]);
+    }
+
+    /**
+     * Pending recipe (initial state, no response yet).
+     */
+    public function pending(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => RecipeStatus::PENDING,
+            'title' => fake()->randomElement([
+                'Nouveau problème signalé',
+                'Bug à corriger',
+                'Demande d\'amélioration',
+                'Problème à investiguer',
+                'Feature request en attente',
+            ]),
+        ]);
+    }
+
+    /**
+     * In progress recipe (client has seen/responded).
+     */
+    public function inProgress(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => RecipeStatus::IN_PROGRESS,
+            'title' => fake()->randomElement([
+                'Correction en cours d\'analyse',
+                'Problème pris en compte',
+                'Investigation démarrée',
+                'Développement initié',
+            ]),
+        ]);
+    }
+
+    /**
+     * Updated recipe (dev/admin provided update).
+     */
+    public function updated(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => RecipeStatus::UPDATED,
+            'title' => fake()->randomElement([
+                'Correction déployée',
+                'Mise à jour disponible',
+                'Problème résolu',
+                'Feature implémentée',
+                'Solution proposée',
+            ]),
+        ]);
+    }
+
+    /**
+     * Question recipe (dev/admin asking for clarification).
+     */
+    public function question(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => RecipeStatus::QUESTION,
+            'title' => fake()->randomElement([
+                'Clarifications nécessaires',
+                'Questions sur le problème',
+                'Informations supplémentaires requises',
+                'Besoin de précisions',
+            ]),
+        ]);
+    }
+
+    /**
+     * Completed recipe (client marked as done).
+     */
+    public function completed(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => RecipeStatus::COMPLETED,
+            'title' => fake()->randomElement([
+                'Problème résolu',
+                'Feature validée',
+                'Correction acceptée',
+                'Développement finalisé',
+            ]),
+        ]);
+    }
+
+    /**
+     * Rejected recipe (client not satisfied with solution).
+     */
+    public function rejected(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => RecipeStatus::REJECTED,
+            'title' => fake()->randomElement([
+                'Solution non satisfaisante',
+                'Correction à revoir',
+                'Problème persistant',
+                'Demande rejetée',
+            ]),
         ]);
     }
 

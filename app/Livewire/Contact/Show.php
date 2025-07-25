@@ -32,13 +32,8 @@ class Show extends Component
         $contacts = Contact::where('customer_id', $this->customer->id)  // ← Contacts du client uniquement
         ->when($this->search, function ($query) {
             $query->where('name', 'like', '%' . $this->search . '%');
-//                ->orWhere('email', 'like', '%' . $this->search . '%')  // ← Bonus: recherche aussi par email
-//                ->orWhere('job_area', 'like', '%' . $this->search . '%'); // ← Et par poste
         })
         ->get();
-
-        dump($this->customer->id);
-        dump($contacts);
 
         return view('livewire.contact.show', [
             'contacts' => $contacts

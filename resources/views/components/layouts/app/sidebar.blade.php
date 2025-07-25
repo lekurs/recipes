@@ -25,6 +25,16 @@
                 <x-app-logo />
             </a>
 
+            <div class="flex items-center gap-4">
+                {{-- Tes autres éléments de navigation --}}
+
+                {{-- CTA Login As (seulement pour les admins en dev) --}}
+                @livewire('login-as-quick')
+
+                @livewire('switch-back')
+            </div>
+
+
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
@@ -146,5 +156,9 @@
         {{ $slot }}
 
         @fluxScripts
+
+        @persist('toast')
+            <flux:toast />
+        @endpersist
     </body>
 </html>

@@ -13,6 +13,8 @@ return new class extends Migration {
             $table->string('email');
             $table->string('phone')->nullable();
             $table->string('job_area');
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
+
             $table->timestamps();
 
             $table->foreignId('customer_id')

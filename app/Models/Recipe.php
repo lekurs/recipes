@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\RecipeStatus;
+use App\Enums\RecipeType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,14 +18,27 @@ class Recipe extends Model
         'title',
         'description',
         'project_id',
+        'status',
+        'file_path'
     ];
 
-//    protected function casts(): array
-//    {
-//        return [
-//            'type' => RecipeType::class,
-//        ];
-//    }
+    protected function casts(): array
+    {
+        return [
+            'type' => RecipeType::class,
+            'status' => RecipeStatus::class,
+        ];
+    }
+
+    public function getStatusColor()
+    {
+        return $this->status->badgeColor();
+    }
+
+    public function getStatusLabel()
+    {
+        return $this->status->label();
+    }
 
     public function project(): BelongsTo
     {

@@ -11,7 +11,6 @@ return new class extends Migration {
     {
         Schema::create('answers', function (Blueprint $table) {
             $table->id();
-            $table->string('status');
             $table->text('comment')->nullable();
             $table->text('question')->nullable();
             $table->dateTime('responded_at')->nullable();
